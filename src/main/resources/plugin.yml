@@ -1,0 +1,7 @@
+name: BabelTower
+version: '1.0-SNAPSHOT'
+main: org.desp.babelTower.BabelTower
+api-version: '1.20'
+commands:
+  바벨탑:
+  바벨탑입장:
