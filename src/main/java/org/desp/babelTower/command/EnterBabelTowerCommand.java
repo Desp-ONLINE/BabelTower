@@ -21,7 +21,7 @@ public class EnterBabelTowerCommand implements CommandExecutor {
             return false;
         }
 
-        Location location = new Location(Bukkit.getWorld("world"), 46.527, 105.000, -737.370);
+        Location location = new Location(Bukkit.getWorld("raid"), -340.637, 6.0000, 551.976);
 
         player.teleport(location);
         return false;
