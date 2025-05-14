@@ -9,8 +9,10 @@ import org.bukkit.entity.Player;
 import org.desp.babelTower.BabelTower;
 import org.desp.babelTower.database.PlayerDataRepository;
 import org.desp.babelTower.database.RewardLogRepository;
+import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.dto.PlayerDataDto;
 import org.desp.babelTower.dto.RewardLogDto;
+import org.desp.babelTower.dto.RoomDto;
 import org.desp.babelTower.game.BabelTowerController;
 
 public class BabelTowerManager {
@@ -25,6 +27,10 @@ public class BabelTowerManager {
     private final Map<String, BabelTowerSession> sessions = new HashMap<>();
 
     public void startSession(Player player) {
+
+        RoomDto availableRoom = RoomRepository.getInstance().getAvailableRoom();
+        availableRoom.setPlaying(true);
+
         PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
 
         int challengeFloor = playerData.getClearFloor() + 1;
@@ -34,10 +40,11 @@ public class BabelTowerManager {
 
         if (sessions.containsKey(uuid)) return;
 
-        BabelTowerSession session = new BabelTowerSession(user_id, uuid, challengeFloor, true);
+        BabelTowerSession session = new BabelTowerSession(user_id, uuid, challengeFloor, true, availableRoom.getRoomID());
         sessions.put(uuid, session);
         session.getController().start();
-//        player.teleport(floorLocation);   각 층 텔포
+
+        player.teleport(LocationUtil.parseLocation(availableRoom.getPlayerLocation()));
     }
 
     public void endSession(Player player, boolean success) {
@@ -45,6 +52,7 @@ public class BabelTowerManager {
         BabelTowerSession session = sessions.remove(uuid);
         if (session == null) return;
 
+        clearRoom(session.getRoomID());
         session.getController().stop();
 
         if (success) {
@@ -79,6 +87,10 @@ public class BabelTowerManager {
     private Location getFloorLocation(int floor) {
 
         return new Location(Bukkit.getWorld("world"), 100, 100 + floor * 5, 100);
+    }
+
+    public void clearRoom(int roomID) {
+        RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
     }
 
 }

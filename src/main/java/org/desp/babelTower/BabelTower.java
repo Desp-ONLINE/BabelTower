@@ -5,11 +5,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.desp.babelTower.command.EnterBabelTowerCommand;
-import org.desp.babelTower.command.StartBabelTowerCommand;
+import org.desp.babelTower.command.BabelTowerCommand;
 import org.desp.babelTower.database.FloorDataRepository;
 import org.desp.babelTower.database.PlayerDataRepository;
 import org.desp.babelTower.database.RewardLogRepository;
+import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.game.BabelTowerController.ControllerListener;
 import org.desp.babelTower.listener.PlayerJoinAndQuitListener;
 
@@ -22,14 +22,14 @@ public final class BabelTower extends JavaPlugin {
     public void onEnable() {
         instance = this;
         FloorDataRepository.getInstance().loadItemData();
+        RoomRepository.getInstance().loadAllRooms();
 
         registerListeners(
                 new PlayerJoinAndQuitListener(),
                 new ControllerListener()
         );
 
-        getCommand("바벨탑").setExecutor(new EnterBabelTowerCommand());
-        getCommand("바벨탑입장").setExecutor(new StartBabelTowerCommand());
+        getCommand("바벨탑").setExecutor(new BabelTowerCommand());
 
         Bukkit.getOnlinePlayers().forEach(player -> {
                     PlayerDataRepository.getInstance().loadPlayerData(player);

@@ -84,7 +84,7 @@ public class BabelTowerController {
         // 몹 스폰하는 로직
         boss = MythicBukkit.inst().getAPIHelper().spawnMythicMob(floorData.getMythicMobID(), spawnLocation);
 
-        player.sendMessage("§c[!] " + mobId + " 보스 등장! 30초 안에 처치하세요!");
+        player.sendActionBar("§c[!] " + mobId + " 보스 등장! 30초 안에 처치하세요!");
     }
 
     private void startTimeoutTimer() {
