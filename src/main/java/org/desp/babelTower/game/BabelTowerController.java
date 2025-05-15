@@ -19,9 +19,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.desp.babelTower.BabelTower;
 import org.desp.babelTower.database.FloorDataRepository;
+import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.dto.FloorDataDto;
+import org.desp.babelTower.dto.RoomDto;
 import org.desp.babelTower.utils.BabelTowerManager;
 import org.desp.babelTower.utils.BabelTowerSession;
+import org.desp.babelTower.utils.LocationUtil;
 
 @Getter
 public class BabelTowerController {
@@ -33,13 +36,15 @@ public class BabelTowerController {
     private final Player player;
     private final int floor;
     private Entity boss;
+    private final int roomID;
 
     private int myTime = TIME_LEFT;
     private final List<Integer> tasks = new ArrayList<>();
 
-    public BabelTowerController(Player player, int floor) {
+    public BabelTowerController(Player player, int floor, int roomID) {
         this.player = player;
         this.floor = floor;
+        this.roomID = roomID;
     }
 
     public void start() {
@@ -73,16 +78,15 @@ public class BabelTowerController {
 
     private void spawnBoss() throws InvalidMobTypeException {
         FloorDataDto floorData = FloorDataRepository.getInstance().getFloorData(floor);
-        System.out.println("=============================");
-        System.out.println("floorData.getFloor() = " + floorData.getFloor());
-        System.out.println("floorData.getMythicMobID() = " + floorData.getMythicMobID());
-        System.out.println("floorData.getRewards().size() = " + floorData.getRewards().size());
-        System.out.println("=============================");
 
         String mobId = floorData.getMythicMobID();
-        Location spawnLocation = player.getLocation().add(0, 0, 3);
+
+        RoomDto roomDto = RoomRepository.getInstance().getRoomMap().get(roomID);
+        String mobLocation = roomDto.getMobLocation();
+
+//        Location spawnLocation = player.getLocation().add(0, 0, 3);
         // 몹 스폰하는 로직
-        boss = MythicBukkit.inst().getAPIHelper().spawnMythicMob(floorData.getMythicMobID(), spawnLocation);
+        boss = MythicBukkit.inst().getAPIHelper().spawnMythicMob(floorData.getMythicMobID(), LocationUtil.parseLocation(mobLocation));
 
         player.sendActionBar("§c[!] " + mobId + " 보스 등장! 30초 안에 처치하세요!");
     }

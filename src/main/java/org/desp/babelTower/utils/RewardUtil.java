@@ -36,7 +36,7 @@ public class RewardUtil {
 
         for (RewardDto reward : rewards) {
             String rewardItemID = reward.getRewardItemID();
-            Integer rewardQuantity = reward.getRewardQuantity();
+            int rewardQuantity = reward.getRewardQuantity();
 
             ItemStack rewardItem = getValidTypeItem(rewardItemID);
             rewardItem.setAmount(rewardQuantity);

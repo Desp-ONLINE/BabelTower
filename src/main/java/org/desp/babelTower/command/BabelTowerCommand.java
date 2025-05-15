@@ -47,8 +47,11 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
 
-                    BabelTowerManager.getInstance().startSession(player);
-                    return true;
+                    if (FloorDataRepository.getInstance().floorDataList.containsKey(nextFloor) &&
+                            RoomRepository.getInstance().isExistEmptyRoom()) {
+                        BabelTowerManager.getInstance().startSession(player);
+                        return true;
+                    }
                 }
 
                 case "내정보": {

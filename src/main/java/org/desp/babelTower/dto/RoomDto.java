@@ -10,5 +10,6 @@ public class RoomDto {
     private int roomID;
     private boolean isPlaying;
     private String playerLocation;
+    private String mobLocation;
 }
 

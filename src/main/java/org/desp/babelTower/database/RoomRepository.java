@@ -32,6 +32,7 @@ public class RoomRepository {
                     .roomID(doc.getInteger("roomID"))
                     .isPlaying(doc.getBoolean("isPlaying", false))
                     .playerLocation(doc.getString("playerLocation"))
+                    .mobLocation(doc.getString("mobLocation"))
                     .build();
 
             roomMap.put(roomDto.getRoomID(), roomDto);
@@ -50,7 +51,6 @@ public class RoomRepository {
     public RoomDto getAvailableRoom() {
         for (RoomDto room : roomMap.values()) {
             if (!room.isPlaying()) {
-                room.setPlaying(true);
                 return room;
             }
         }

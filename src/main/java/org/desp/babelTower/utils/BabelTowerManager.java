@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.desp.babelTower.BabelTower;
@@ -24,21 +25,30 @@ public class BabelTowerManager {
         return instance;
     }
 
+    private static final Location DEFAULT_LOCATION = new Location(
+            Bukkit.getWorld("raid"),
+            -340.521,
+            6.0000,
+            551.349
+    );
+
     private final Map<String, BabelTowerSession> sessions = new HashMap<>();
 
     public void startSession(Player player) {
-
-        RoomDto availableRoom = RoomRepository.getInstance().getAvailableRoom();
-        availableRoom.setPlaying(true);
-
         PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
-
-        int challengeFloor = playerData.getClearFloor() + 1;
 
         String uuid = playerData.getUuid();
         String user_id = playerData.getUser_id();
 
-        if (sessions.containsKey(uuid)) return;
+        if (sessions.containsKey(uuid)) {
+            player.sendMessage(ChatColor.RED + "5초 기다려라!");
+            return;
+        }
+
+        RoomDto availableRoom = RoomRepository.getInstance().getAvailableRoom();
+        availableRoom.setPlaying(true);
+
+        int challengeFloor = playerData.getClearFloor() + 1;
 
         BabelTowerSession session = new BabelTowerSession(user_id, uuid, challengeFloor, true, availableRoom.getRoomID());
         sessions.put(uuid, session);
@@ -49,7 +59,7 @@ public class BabelTowerManager {
 
     public void endSession(Player player, boolean success) {
         String uuid = player.getUniqueId().toString();
-        BabelTowerSession session = sessions.remove(uuid);
+        BabelTowerSession session = sessions.get(uuid);
         if (session == null) return;
 
         clearRoom(session.getRoomID());
@@ -70,9 +80,12 @@ public class BabelTowerManager {
         } else {
             player.sendMessage("§7[로비로 돌아갑니다.]");
         }
-        Location location = new Location(Bukkit.getWorld("raid"), -340.637, 6.0000, 551.976);
 
-        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(location), 20L);
+        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
+            sessions.remove(uuid);
+        }, 100L);
+
+        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 20L);
     }
 
     public boolean isInSession(Player player) {
@@ -91,6 +104,7 @@ public class BabelTowerManager {
 
     public void clearRoom(int roomID) {
         RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
+
     }
 
 }

@@ -28,6 +28,6 @@ public class BabelTowerSession {
         this.floor = floor;
         this.active = active;
         this.roomID = roomID;
-        this.controller = new BabelTowerController(Bukkit.getPlayer(UUID.fromString(this.uuid)), floor);
+        this.controller = new BabelTowerController(Bukkit.getPlayer(UUID.fromString(this.uuid)), floor, roomID);
     }
 }
