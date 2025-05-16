@@ -24,10 +24,10 @@ public class BabelTowerManager {
     }
 
     private static final Location DEFAULT_LOCATION = new Location(
-            Bukkit.getWorld("raid"),
-            -340.521,
-            6.0000,
-            551.349
+            Bukkit.getWorld("world"),
+            -21.521,
+            37.0000,
+            -737.349
     );
 
     private final Map<String, BabelTowerSession> sessions = new HashMap<>();

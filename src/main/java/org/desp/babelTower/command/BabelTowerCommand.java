@@ -15,6 +15,8 @@ import org.desp.babelTower.dto.PlayerDataDto;
 import org.desp.babelTower.utils.BabelTowerManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.swlab.etcetera.EtCetera;
+import org.swlab.etcetera.Util.CommandUtil;
 
 public class BabelTowerCommand implements CommandExecutor, TabCompleter {
     @Override
@@ -27,6 +29,10 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
 
         if (!player.isOp()) {
             return false;
+        }
+
+        if(strings.length == 0){
+            CommandUtil.runCommandAsOP(player, "워프 이동 바벨탑_입구");
         }
 
         if (strings.length > 0) {
@@ -68,10 +74,6 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
                     return false;
             }
         }
-
-
-        Location location = new Location(Bukkit.getWorld("raid"), -340.637, 6.0000, 551.976);
-        player.teleport(location);
         return true;
     }
 
