@@ -2,7 +2,6 @@ package org.desp.babelTower.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -14,7 +13,6 @@ import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.dto.PlayerDataDto;
 import org.desp.babelTower.dto.RewardLogDto;
 import org.desp.babelTower.dto.RoomDto;
-import org.desp.babelTower.game.BabelTowerController;
 
 public class BabelTowerManager {
 
@@ -41,7 +39,7 @@ public class BabelTowerManager {
         String user_id = playerData.getUser_id();
 
         if (sessions.containsKey(uuid)) {
-            player.sendMessage(ChatColor.RED + "5초 기다려라!");
+            player.sendMessage(ChatColor.RED + "잠시 쉬어가는 것도 중요해요!");
             return;
         }
 
@@ -67,7 +65,8 @@ public class BabelTowerManager {
 
         if (success) {
             int cleared = session.getFloor();
-            player.sendMessage("§a[✔] " + cleared + "층 클리어! 보상을 획득했습니다.");
+            player.sendTitle("§a" + cleared + "층 클리어!", "§7[잠시후 로비로 돌아갑니다.]");
+            player.sendMessage("§a 보상은 메일함으로 지급됩니다.");
             // 보상 지급 로직
             RewardUtil.sendReward(cleared, RewardUtil.getReward(cleared), player);
             PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
@@ -76,16 +75,15 @@ public class BabelTowerManager {
             RewardLogDto rewardLogDto = RewardLogRepository.getInstance().getRewardLogDataCache()
                     .get(playerData.getUuid());
             rewardLogDto.getRewardFloor().add(cleared);
-
+            Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 40L);
         } else {
-            player.sendMessage("§7[로비로 돌아갑니다.]");
+            Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 10L);
+            player.sendTitle("§c 도전에 실패했습니다.","");
         }
 
         Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
             sessions.remove(uuid);
-        }, 100L);
-
-        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 20L);
+        }, 200L);
     }
 
     public boolean isInSession(Player player) {
@@ -95,11 +93,6 @@ public class BabelTowerManager {
 
     public BabelTowerSession getSession(Player player) {
         return sessions.get(player.getUniqueId().toString());
-    }
-
-    private Location getFloorLocation(int floor) {
-
-        return new Location(Bukkit.getWorld("world"), 100, 100 + floor * 5, 100);
     }
 
     public void clearRoom(int roomID) {

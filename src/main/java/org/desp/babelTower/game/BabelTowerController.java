@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.desp.babelTower.BabelTower;
 import org.desp.babelTower.database.FloorDataRepository;
@@ -49,17 +50,29 @@ public class BabelTowerController {
 
     public void start() {
         player.sendMessage("§e[!] " + floor + "층 도전 시작!");
-        player.sendMessage("§e[!] 3초 뒤 몬스터가 출현합니다");
 
-        runTaskLater(() -> {
-            try {
-                spawnBoss();
-            } catch (InvalidMobTypeException e) {
-                throw new RuntimeException(e);
+        // 3초 카운트다운
+        new BukkitRunnable() {
+            int count = 5;
+
+            @Override
+            public void run() {
+                if (count > 0) {
+                    player.sendTitle("§e몬스터 출현까지 " + count + "초...", "");
+                    count--;
+                } else {
+                    this.cancel();
+                    try {
+                        spawnBoss();
+                    } catch (InvalidMobTypeException e) {
+                        throw new RuntimeException(e);
+                    }
+                    startTimeoutTimer(); // 이후 타이머 시작
+                }
             }
-            startTimeoutTimer();
-        }, 60L);
+        }.runTaskTimer(BabelTower.getInstance(), 0L, 20L); // 1초 간격으로 반복
     }
+
 
     public void stop() {
         tasks.forEach(SCHEDULER::cancelTask);
@@ -84,18 +97,17 @@ public class BabelTowerController {
         RoomDto roomDto = RoomRepository.getInstance().getRoomMap().get(roomID);
         String mobLocation = roomDto.getMobLocation();
 
-//        Location spawnLocation = player.getLocation().add(0, 0, 3);
         // 몹 스폰하는 로직
         boss = MythicBukkit.inst().getAPIHelper().spawnMythicMob(floorData.getMythicMobID(), LocationUtil.parseLocation(mobLocation));
 
-        player.sendActionBar("§c[!] " + mobId + " 보스 등장! 30초 안에 처치하세요!");
+        player.sendTitle("§c" + mobId + " 보스 등장!", " 30초 안에 처치하세요!", 10, 30, 10);
     }
 
     private void startTimeoutTimer() {
         // 1초마다 ActionBar 출력하는 타이머
         runTaskTimer(() -> {
             if (myTime <= 0) {
-                player.sendMessage("§c[!] 시간이 초과되었습니다. 실패!");
+                player.sendTitle("§c시간이 초과되었습니다. 실패!", "", 10, 30, 10);
                 BabelTowerManager.getInstance().endSession(player, false);
                 return;
             }
@@ -126,7 +138,6 @@ public class BabelTowerController {
 
             BabelTowerManager manager = manager();
             if (manager.isInSession(player)) {
-                player.sendMessage("§c[!] 사망하여 도전이 실패했습니다.");
                 manager.endSession(player, false);
             }
         }
@@ -154,8 +165,9 @@ public class BabelTowerController {
             }
 
             // 성공 처리
-            player.sendMessage("§a[✔] 보스를 처치했습니다!");
-            manager.endSession(player, true);
+            player.sendTitle("§a 보스를 처치했습니다!", "", 10, 30, 10);
+
+            Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> manager.endSession(player, true), 30L);
         }
     }
 }
