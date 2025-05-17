@@ -28,12 +28,12 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        if (!player.isOp()) {
-            return false;
-        }
-
         if(strings.length == 0){
             CommandUtil.runCommandAsOP(player, "워프 이동 바벨탑_입구");
+        }
+
+        if (!player.isOp()) {
+            return false;
         }
 
         if (strings.length > 0) {
