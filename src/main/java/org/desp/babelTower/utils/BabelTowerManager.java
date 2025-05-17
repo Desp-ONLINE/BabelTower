@@ -13,6 +13,7 @@ import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.dto.PlayerDataDto;
 import org.desp.babelTower.dto.RewardLogDto;
 import org.desp.babelTower.dto.RoomDto;
+import org.desp.babelTower.event.BabelClearEvent;
 
 public class BabelTowerManager {
 
@@ -37,7 +38,6 @@ public class BabelTowerManager {
 
         String uuid = playerData.getUuid();
         String user_id = playerData.getUser_id();
-
         if (sessions.containsKey(uuid)) {
             player.sendMessage(ChatColor.RED + "잠시 쉬어가는 것도 중요해요!");
             return;
@@ -62,12 +62,15 @@ public class BabelTowerManager {
 
         if (success) {
             int cleared = session.getFloor();
+            PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
             player.sendTitle("§a" + cleared + "층 클리어!", "§7[잠시후 로비로 돌아갑니다.]");
             player.sendMessage("§a 보상은 메일함으로 지급됩니다.");
             // 보상 지급 로직
             RewardUtil.sendReward(cleared, RewardUtil.getReward(cleared), player);
-            PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
             playerData.setClearFloor(cleared);
+
+            BabelClearEvent clearEvent = new BabelClearEvent(player, playerData, cleared);
+            Bukkit.getPluginManager().callEvent(clearEvent);
 
             RewardLogDto rewardLogDto = RewardLogRepository.getInstance().getRewardLogDataCache()
                     .get(playerData.getUuid());
@@ -78,9 +81,7 @@ public class BabelTowerManager {
             player.sendTitle("§c 도전에 실패했습니다.","");
         }
 
-        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
-            sessions.remove(uuid);
-        }, 200L);
+        sessions.remove(uuid);
     }
 
     public boolean isInSession(Player player) {
@@ -95,6 +96,7 @@ public class BabelTowerManager {
     public void clearRoom(int roomID) {
         Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
             RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
+            Bukkit.getPlayer("Dawn__L").sendMessage("[퇴장] 방번호 : " + roomID + " 상태 : §c" +RoomRepository.getInstance().roomMap.get(roomID).isPlaying());
         }, 60L);
     }
 }

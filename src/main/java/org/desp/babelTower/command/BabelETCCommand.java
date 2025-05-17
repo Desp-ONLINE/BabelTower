@@ -25,13 +25,13 @@ public class BabelETCCommand implements CommandExecutor {
 
         Map<Integer, RoomDto> roomMap = RoomRepository.getInstance().roomMap;
 
-        System.out.println("=========================");
+        player.sendMessage("=========================");
         for (Entry<Integer, RoomDto> entity : roomMap.entrySet()) {
             Integer key = entity.getKey();
             boolean playing = entity.getValue().isPlaying();
             player.sendMessage("방 번호 : " + key + " 상태 : " + playing);
         }
-        System.out.println("=========================");
+        player.sendMessage("=========================");
 
         return false;
     }
