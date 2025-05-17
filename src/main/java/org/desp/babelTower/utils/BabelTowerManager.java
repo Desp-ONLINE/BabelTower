@@ -96,8 +96,8 @@ public class BabelTowerManager {
     }
 
     public void clearRoom(int roomID) {
-        RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
-
+        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
+            RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
+        }, 60L);
     }
-
 }
