@@ -99,6 +99,10 @@ public class BabelTowerManager {
 
     public void clearRoom(int roomID) {
         RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
-        Bukkit.getPlayer("Dawn__L").sendMessage("[퇴장] 방번호 : " + roomID + " 상태 : §c" +RoomRepository.getInstance().roomMap.get(roomID).isPlaying());
+
+        Player debug = Bukkit.getPlayer("Dawn__L");
+        if (debug != null) {
+            debug.sendMessage("[퇴장] 방번호 : " + roomID + " 상태 : §c" + RoomRepository.getInstance().roomMap.get(roomID).isPlaying());
+        }
     }
 }

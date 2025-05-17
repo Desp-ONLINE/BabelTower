@@ -63,7 +63,10 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
                             return false;
                         }
 
-                        Bukkit.getPlayer("Dawn__L").sendMessage("[입장] 이름 : " + player.getName() + " 방 번호 : §9" + availableRoom.getRoomID() );
+                        Player debug = Bukkit.getPlayer("Dawn__L");
+                        if (debug != null) {
+                            debug.sendMessage("[입장] 이름 : " + player.getName() + " 방 번호 : §9" + availableRoom.getRoomID() );
+                        }
                         BabelTowerManager.getInstance().startSession(player, availableRoom);
                         return true;
                     }
