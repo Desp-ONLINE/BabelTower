@@ -76,7 +76,9 @@ public class BabelTowerController {
 
     public void stop() {
         tasks.forEach(SCHEDULER::cancelTask);
-        boss.remove();
+        if (boss != null && !boss.isDead()) {
+            boss.remove();
+        }
     }
 
     private void runTaskLater(Runnable runnable, long delay) {

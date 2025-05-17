@@ -57,31 +57,35 @@ public class BabelTowerManager {
         BabelTowerSession session = sessions.get(uuid);
         if (session == null) return;
 
-        clearRoom(session.getRoomID());
-        session.getController().stop();
+        try {
+            session.getController().stop();
+            clearRoom(session.getRoomID());
+            if (success) {
+                int cleared = session.getFloor();
+                PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
+                player.sendTitle("§a" + cleared + "층 클리어!", "§7[잠시후 로비로 돌아갑니다.]");
+                player.sendMessage("§a 보상은 메일함으로 지급됩니다.");
+                // 보상 지급 로직
+                RewardUtil.sendReward(cleared, RewardUtil.getReward(cleared), player);
+                playerData.setClearFloor(cleared);
 
-        if (success) {
-            int cleared = session.getFloor();
-            PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
-            player.sendTitle("§a" + cleared + "층 클리어!", "§7[잠시후 로비로 돌아갑니다.]");
-            player.sendMessage("§a 보상은 메일함으로 지급됩니다.");
-            // 보상 지급 로직
-            RewardUtil.sendReward(cleared, RewardUtil.getReward(cleared), player);
-            playerData.setClearFloor(cleared);
+                BabelClearEvent clearEvent = new BabelClearEvent(player, playerData, cleared);
+                Bukkit.getPluginManager().callEvent(clearEvent);
 
-            BabelClearEvent clearEvent = new BabelClearEvent(player, playerData, cleared);
-            Bukkit.getPluginManager().callEvent(clearEvent);
-
-            RewardLogDto rewardLogDto = RewardLogRepository.getInstance().getRewardLogDataCache()
-                    .get(playerData.getUuid());
-            rewardLogDto.getRewardFloor().add(cleared);
-            Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 40L);
-        } else {
-            Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 10L);
-            player.sendTitle("§c 도전에 실패했습니다.","");
+                RewardLogDto rewardLogDto = RewardLogRepository.getInstance().getRewardLogDataCache()
+                        .get(playerData.getUuid());
+                rewardLogDto.getRewardFloor().add(cleared);
+                Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 40L);
+            } else {
+                Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> player.teleport(DEFAULT_LOCATION), 10L);
+                player.sendTitle("§c 도전에 실패했습니다.","");
+            }
+        } catch (Exception e) {
+            System.out.println("세션 종료 중 오류: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            sessions.remove(uuid);
         }
-
-        sessions.remove(uuid);
     }
 
     public boolean isInSession(Player player) {
@@ -94,9 +98,7 @@ public class BabelTowerManager {
     }
 
     public void clearRoom(int roomID) {
-        Bukkit.getScheduler().runTaskLater(BabelTower.getInstance(), () -> {
-            RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
-            Bukkit.getPlayer("Dawn__L").sendMessage("[퇴장] 방번호 : " + roomID + " 상태 : §c" +RoomRepository.getInstance().roomMap.get(roomID).isPlaying());
-        }, 60L);
+        RoomRepository.getInstance().roomMap.get(roomID).setPlaying(false);
+        Bukkit.getPlayer("Dawn__L").sendMessage("[퇴장] 방번호 : " + roomID + " 상태 : §c" +RoomRepository.getInstance().roomMap.get(roomID).isPlaying());
     }
 }

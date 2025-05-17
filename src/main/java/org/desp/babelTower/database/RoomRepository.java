@@ -48,7 +48,7 @@ public class RoomRepository {
         return false;
     }
 
-    public RoomDto getAvailableRoom() {
+    public synchronized RoomDto getAvailableRoom() {
         for (RoomDto room : roomMap.values()) {
             if (!room.isPlaying()) {
                 room.setPlaying(true);
