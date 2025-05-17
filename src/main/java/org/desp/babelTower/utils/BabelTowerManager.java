@@ -32,7 +32,7 @@ public class BabelTowerManager {
 
     private final Map<String, BabelTowerSession> sessions = new HashMap<>();
 
-    public void startSession(Player player) {
+    public void startSession(Player player, RoomDto room) {
         PlayerDataDto playerData = PlayerDataRepository.getInstance().getPlayerData(player);
 
         String uuid = playerData.getUuid();
@@ -43,16 +43,13 @@ public class BabelTowerManager {
             return;
         }
 
-        RoomDto availableRoom = RoomRepository.getInstance().getAvailableRoom();
-        availableRoom.setPlaying(true);
-
         int challengeFloor = playerData.getClearFloor() + 1;
 
-        BabelTowerSession session = new BabelTowerSession(user_id, uuid, challengeFloor, true, availableRoom.getRoomID());
+        BabelTowerSession session = new BabelTowerSession(user_id, uuid, challengeFloor, true, room.getRoomID());
         sessions.put(uuid, session);
         session.getController().start();
 
-        player.teleport(LocationUtil.parseLocation(availableRoom.getPlayerLocation()));
+        player.teleport(LocationUtil.parseLocation(room.getPlayerLocation()));
     }
 
     public void endSession(Player player, boolean success) {

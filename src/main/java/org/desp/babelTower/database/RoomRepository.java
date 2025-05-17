@@ -51,6 +51,7 @@ public class RoomRepository {
     public RoomDto getAvailableRoom() {
         for (RoomDto room : roomMap.values()) {
             if (!room.isPlaying()) {
+                room.setPlaying(true);
                 return room;
             }
         }

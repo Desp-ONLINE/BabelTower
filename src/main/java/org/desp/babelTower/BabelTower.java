@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.desp.babelTower.command.BabelETCCommand;
 import org.desp.babelTower.command.BabelTowerCommand;
 import org.desp.babelTower.database.FloorDataRepository;
 import org.desp.babelTower.database.PlayerDataRepository;
@@ -30,6 +31,7 @@ public final class BabelTower extends JavaPlugin {
         );
 
         getCommand("바벨탑").setExecutor(new BabelTowerCommand());
+        getCommand("바벨탑현황").setExecutor(new BabelETCCommand());
 
         Bukkit.getOnlinePlayers().forEach(player -> {
                     PlayerDataRepository.getInstance().loadPlayerData(player);

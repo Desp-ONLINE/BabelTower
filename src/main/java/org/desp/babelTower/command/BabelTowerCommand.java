@@ -12,6 +12,7 @@ import org.desp.babelTower.database.FloorDataRepository;
 import org.desp.babelTower.database.PlayerDataRepository;
 import org.desp.babelTower.database.RoomRepository;
 import org.desp.babelTower.dto.PlayerDataDto;
+import org.desp.babelTower.dto.RoomDto;
 import org.desp.babelTower.utils.BabelTowerManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,9 +54,16 @@ public class BabelTowerCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
 
-                    if (FloorDataRepository.getInstance().floorDataList.containsKey(nextFloor) &&
-                            RoomRepository.getInstance().isExistEmptyRoom()) {
-                        BabelTowerManager.getInstance().startSession(player);
+                    if (FloorDataRepository.getInstance().floorDataList.containsKey(nextFloor)) {
+                        if (BabelTowerManager.getInstance().isInSession(player)) {
+                            return false;
+                        }
+                        RoomDto availableRoom = RoomRepository.getInstance().getAvailableRoom();
+                        if (availableRoom == null) {
+                            return false;
+                        }
+
+                        BabelTowerManager.getInstance().startSession(player, availableRoom);
                         return true;
                     }
                 }
